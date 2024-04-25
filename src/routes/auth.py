@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import (
     APIRouter,
     BackgroundTasks,
@@ -7,8 +5,6 @@ from fastapi import (
     Depends,
     Request,
     status,
-    Path,
-    Query,
     Security,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -51,26 +47,15 @@ async def signup(
     body.password = auth_service.get_password_hash(body.password)
     new_user = await repository_contacts.create_contact(body, db)
     background_tasks.add_task(
-        send_email, new_user.email, new_user.name, request.base_url
+        send_email, new_user.email, new_user.name, str(request.base_url)
     )
-    return {
-        "user": new_user,
-        "detail": "User successfully created. Check your email for confirmation.",
-    }
+    # return {
+    #     "user": new_user,
+    #     "detail": "User successfully created. Check your email for confirmation.",
+    # }
+    return new_user
 
 
-# @router.post(
-#     "/signup", response_model=ContactResponse, status_code=status.HTTP_201_CREATED
-# )
-# async def signup(body: ContactSchema, db: AsyncSession = Depends(get_db)):
-#     exist_user = await repository_contacts.get_contact_by_email(body.email, db)
-#     if exist_user:
-#         raise HTTPException(
-#             status_code=status.HTTP_409_CONFLICT, detail="Account already exists"
-#         )
-#     body.password = auth_service.get_password_hash(body.password)
-#     new_user = await repository_contacts.create_contact(body, db)
-#     return new_user
 
 
 @router.post("/login", response_model=TokenSchema)
@@ -99,30 +84,6 @@ async def login(
         "refresh_token": refresh_token,
         "token_type": "bearer",
     }
-
-
-# @router.post("/login", response_model=TokenSchema)
-# async def login(
-#     body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
-# ):
-#     user = await repository_contacts.get_contact_by_email(body.username, db)
-#     if user is None:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email"
-#         )
-#     if not auth_service.verify_password(body.password, user.password):
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password"
-#         )
-#     # Generate JWT
-#     access_token = await auth_service.create_access_token(data={"sub": user.email})
-#     refresh_token = await auth_service.create_refresh_token(data={"sub": user.email})
-#     await repository_contacts.update_token(user, refresh_token, db)
-#     return {
-#         "access_token": access_token,
-#         "refresh_token": refresh_token,
-#         "token_type": "bearer",
-#     }
 
 
 router.post("/request_email")

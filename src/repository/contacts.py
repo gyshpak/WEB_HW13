@@ -104,4 +104,4 @@ async def update_token(contact: Contact, token: str | None, db: AsyncSession):
 async def confirmed_email(email: str, db: AsyncSession) -> None:
     user = await get_contact_by_email(email, db)
     user.confirmed = True
-    db.commit()
+    await db.commit()

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, PastDate
+from pydantic import BaseModel, EmailStr, Field
 from datetime import date
 
 
@@ -13,7 +13,7 @@ class ContactSchema(BaseModel):
 class ContactResponse(BaseModel):
     id: int = 1
     name: str
-    email: EmailStr
+    # email: EmailStr
     phone: str
     birthday: date  # str #PastDate
 
