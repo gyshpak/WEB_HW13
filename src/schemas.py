@@ -6,7 +6,7 @@ class ContactSchema(BaseModel):
     name: str = Field(min_length=3, max_length=40)
     email: EmailStr
     phone: str = Field(min_length=10, max_length=13)
-    birthday: date  # str #PastDate
+    birthday: date
     password: str = Field(min_length=6, max_length=8)
 
 
@@ -16,7 +16,7 @@ class ContactResponse(BaseModel):
     email: EmailStr
     phone: str
     birthday: date
-    avatar: str
+    avatar: str | None
     class Config:
         from_attributes = True
 

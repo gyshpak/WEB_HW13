@@ -23,7 +23,7 @@ async def get_contact(contact_id: int, db: AsyncSession):
     return contact.scalar_one_or_none()
 
 
-async def create_contact(body: ContactSchema, db: AsyncSession):
+async def create_contact(body: ContactSchema, db: AsyncSession = Depends(get_db)):
     contact = Contact(**body.model_dump(exclude_unset=True))
     db.add(contact)
     await db.commit()
