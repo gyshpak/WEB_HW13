@@ -91,9 +91,9 @@ async def search_contacts_coming_birthday(offset: int, limit: int, db: AsyncSess
 
 async def get_contact_by_email(email: str, db: AsyncSession = Depends(get_db)):
     stmt = select(Contact).filter_by(email=email)
-    user = await db.execute(stmt)
-    user = user.scalar_one_or_none()
-    return user
+    contact = await db.execute(stmt)
+    contact = contact.scalar_one_or_none()
+    return contact
 
 
 async def update_token(contact: Contact, token: str | None, db: AsyncSession):
@@ -102,6 +102,14 @@ async def update_token(contact: Contact, token: str | None, db: AsyncSession):
 
 
 async def confirmed_email(email: str, db: AsyncSession) -> None:
-    user = await get_contact_by_email(email, db)
-    user.confirmed = True
+    contact = await get_contact_by_email(email, db)
+    contact.confirmed = True
     await db.commit()
+
+
+async def update_avatar(email: str, url: str, db: AsyncSession):
+    contact = await get_contact_by_email(email, db)
+    contact.avatar = url
+    await db.commit()
+    await db.refresh(contact)
+    return contact

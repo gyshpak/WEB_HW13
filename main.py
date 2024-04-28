@@ -1,5 +1,7 @@
 import uvicorn
+
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.database.db import get_db
 from src.routes import contacts
@@ -14,8 +16,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth.router, prefix="/api")
-# app.include_router(contacts.router, prefix="/api")
 app.include_router(contacts.router, prefix="/api")
+
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")

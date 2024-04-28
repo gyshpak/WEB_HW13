@@ -15,11 +15,9 @@ class Settings(BaseSettings):
     MAIL_SERVER: str
     REDIS_DOMAIN: str
     REDIS_PORT: int
-    REDIS_PASSWORD: str | None = None
-    # CLD_NAME: str = "abc"
-    # CLD_API_KEY: int = 326488457974591
-    # CLD_API_SECRET: str = "secret"
-
+    CLOUD_NAME: str
+    CLOUD_API_KEY: str
+    CLOUD_API_SECRET: str
 
     @field_validator("ALGORITHM")
     @classmethod

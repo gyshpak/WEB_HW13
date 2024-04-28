@@ -1,16 +1,15 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import Depends, HTTPException, status
 from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import JWTError, jwt
 
-from src.database.db import get_db
-from src.repository import contacts as repository_users
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 
-import pickle
+from src.database.db import get_db
+from src.repository import contacts as repository_contacts
 
 from conf.config import config
 
@@ -24,12 +23,9 @@ class Auth:
 
     def get_password_hash(self, password: str):
         return self.pwd_context.hash(password)
-
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
-    # r = redis.Redis()
 
-    # define a function to generate a new access token
     async def create_access_token(
         self, data: dict, expires_delta: Optional[float] = None
     ):
@@ -46,7 +42,6 @@ class Auth:
         )
         return encoded_access_token
 
-    # define a function to generate a new refresh token
     async def create_refresh_token(
         self, data: dict, expires_delta: Optional[float] = None
     ):
@@ -81,7 +76,7 @@ class Auth:
                 detail="Could not validate credentials",
             )
 
-    async def get_current_user(
+    async def get_current_contact(
         self, token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
     ):
         credentials_exception = HTTPException(
@@ -91,7 +86,6 @@ class Auth:
         )
 
         try:
-            # Decode JWT
             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
             if payload["scope"] == "access_token":
                 email = payload["sub"]
@@ -101,10 +95,10 @@ class Auth:
                 raise credentials_exception
         except JWTError as e:
             raise credentials_exception
-        user = await repository_users.get_contact_by_email(email, db)
-        if user is None:
+        contact = await repository_contacts.get_contact_by_email(email, db)
+        if contact is None:
             raise credentials_exception
-        return user
+        return contact
 
     def create_email_token(self, data: dict):
         to_encode = data.copy()

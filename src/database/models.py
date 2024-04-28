@@ -18,4 +18,4 @@ class Contact(Base):
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     refresh_token: Mapped[str] = mapped_column(String(255), nullable=True)
     confirmed: Mapped[bool] = mapped_column(default=False)
-
+    avatar: Mapped[str] = mapped_column(String(255), nullable=True)
