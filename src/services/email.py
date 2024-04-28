@@ -6,12 +6,14 @@ from pydantic import EmailStr
 
 from src.services.auth import auth_service
 
+from conf.config import config
+
 conf = ConnectionConfig(
-    MAIL_USERNAME="gena_shpak@meta.ua",
-    MAIL_PASSWORD="123qweASD",
-    MAIL_FROM="gena_shpak@meta.ua",
-    MAIL_PORT=465,
-    MAIL_SERVER="smtp.meta.ua",
+    MAIL_USERNAME=config.MAIL_USERNAME,
+    MAIL_PASSWORD=config.MAIL_PASSWORD,
+    MAIL_FROM=config.MAIL_FROM,
+    MAIL_PORT=config.MAIL_PORT,
+    MAIL_SERVER=config.MAIL_SERVER,
     MAIL_FROM_NAME="Auth contact",
     MAIL_STARTTLS=False,
     MAIL_SSL_TLS=True,

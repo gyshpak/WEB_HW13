@@ -10,11 +10,14 @@ from jose import JWTError, jwt
 from src.database.db import get_db
 from src.repository import contacts as repository_users
 
+import pickle
+
+from conf.config import config
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = "bbfa90db00ff64602957655112d8ce82dd58397c77bc97c79d52e4e371427a91"
-    ALGORITHM = "HS256"
+    SECRET_KEY = config.SECRET_KEY_JWT
+    ALGORITHM = config.ALGORITHM
 
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
@@ -23,6 +26,8 @@ class Auth:
         return self.pwd_context.hash(password)
 
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+
+    # r = redis.Redis()
 
     # define a function to generate a new access token
     async def create_access_token(
@@ -117,7 +122,6 @@ class Auth:
             print(e)
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Invalid token for email verification")
-
 
 
 auth_service = Auth()

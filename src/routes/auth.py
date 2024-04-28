@@ -26,6 +26,8 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
 )
 
+from my_limiter import limiter
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 get_refresh_token = HTTPBearer()
 
@@ -33,6 +35,7 @@ get_refresh_token = HTTPBearer()
 @router.post(
     "/signup", response_model=ContactResponse, status_code=status.HTTP_201_CREATED
 )
+@limiter.limit("5/minute")
 async def signup(
     body: ContactSchema,
     background_tasks: BackgroundTasks,
@@ -54,8 +57,6 @@ async def signup(
     #     "detail": "User successfully created. Check your email for confirmation.",
     # }
     return new_user
-
-
 
 
 @router.post("/login", response_model=TokenSchema)

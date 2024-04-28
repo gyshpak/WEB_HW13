@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Depends, status, Path, Query
+from fastapi import APIRouter, HTTPException, Depends, status, Path, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Contact
@@ -9,17 +9,21 @@ from src.schemas import ContactSchema, ContactResponse  # , ContactUpdateSchema
 from src.repository import contacts as repository_contacts
 from src.services.auth import auth_service
 
+
+from my_limiter import limiter
+
 router = APIRouter(prefix="/contacts", tags=["contacts"])
 
 
 @router.get("/", response_model=List[ContactResponse])
+@limiter.limit("5/minute")
 async def get_contacts(
+    request: Request,
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=10, ge=10, le=100),
     db: AsyncSession = Depends(get_db),
     cur_contact: Contact = Depends(auth_service.get_current_user),
 ):
-    # db: AsyncSession = Depends(get_db)):
     contacts = await repository_contacts.get_contacts(offset, limit, db)
     return contacts
 
