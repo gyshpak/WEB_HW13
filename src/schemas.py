@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from datetime import date
 
 
@@ -17,8 +17,7 @@ class ContactResponse(BaseModel):
     phone: str
     birthday: date
     avatar: str | None
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 class TokenSchema(BaseModel):

@@ -30,5 +30,4 @@ class Settings(BaseSettings):
         extra="ignore", env_file=".env", env_file_encoding="utf-8"
     )  # noqa
 
-
 config = Settings()

@@ -32,11 +32,28 @@ app.add_middleware(
 
 @app.get("/")
 def index():
+    """
+    The index function is the default function that will be called when a user
+    visits the root of your API. It returns a simple message to let users know
+    that they have successfully connected to your API.
+    
+    :return: A dictionary
+    :doc-author: Trelent
+    """
     return {"message": "Hello World"}
 
 
 @app.get("/api/healthchecker")
 async def healthchecker(db: AsyncSession = Depends(get_db)):
+    """
+    The healthchecker function is a simple function that checks if the database connection is working.
+    It does this by executing a simple SQL query and checking if it returns any results.
+    If it doesn't, then we know something's wrong with the database connection.
+    
+    :param db: AsyncSession: Inject the database session into the function
+    :return: A dict
+    :doc-author: Trelent
+    """
     try:
         result = await db.execute(text("SELECT 1"))
         result = result.fetchone()
