@@ -26,6 +26,11 @@ class TestAsyncContacts(unittest.IsolatedAsyncioTestCase):
         self.session = AsyncMock(spec=AsyncSession)
         print("Start Test")
 
+    # async def get_contacts(offset: int, limit: int, db: AsyncSession):
+    #     stmt = select(Contact).offset(offset).limit(limit)
+    #     contacts = await db.execute(stmt)
+    #     return contacts.scalars().all()
+
 
     async def test_get_contacts(self):
         contacts = [Contact(), Contact(), Contact()]
@@ -36,6 +41,11 @@ class TestAsyncContacts(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, contacts)
 
 
+    # async def get_contact(contact_id: int, db: AsyncSession):
+    #     stmt = select(Contact).filter_by(id=contact_id)
+    #     contact = await db.execute(stmt)
+    #     return contact.scalar_one_or_none()
+
     async def test_get_contact(self):
         contact = Contact()
         mocked_contact = MagicMock()
@@ -44,7 +54,12 @@ class TestAsyncContacts(unittest.IsolatedAsyncioTestCase):
         result = await get_contact(contact_id=self.id, db=self.session)
         self.assertEqual(result, contact)
 
-  
+    
+    # async def get_contact_by_email(email: str, db: AsyncSession = Depends(get_db)):
+    #     stmt = select(Contact).filter_by(email=email)
+    #     contact = await db.execute(stmt)
+    #     contact = contact.scalar_one_or_none()
+    #     return contact
     
     async def test_get_contact_by_email(self):
         contact = Contact()
@@ -55,8 +70,31 @@ class TestAsyncContacts(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, contact)
 
 
+    async def create_todo(body: TodoSchema, db: AsyncSession, user: User):
+        todo = Todo(**body.model_dump(exclude_unset=True), user=user)  # (title=body.title, description=body.description)
+        db.add(todo)
+        await db.commit()
+        await db.refresh(todo)
+        return todo
+
+
+    # async def test_create_todo(self):
+    #     body = TodoSchema(title='test_title', description='test_description')
+    #     result = await create_todo(body, self.session, self.user)
+    #     self.assertIsInstance(result, Todo)
+    #     self.assertEqual(result.title, body.title)
+    #     self.assertEqual(result.description, body.description)
+
+
+    # async def create_contact(body: ContactSchema, db: AsyncSession = Depends(get_db)):
+    #     contact = Contact(**body.model_dump(exclude_unset=True))
+    #     db.add(contact)
+    #     await db.commit()
+    #     await db.refresh(contact)
+    #     return contact
+
     async def test_create_contact(self):
-        body = ContactSchema(name='test_name', email='testemail@ukr.net', phone='0674444444', birthday = date(1975, 12, 12) ,password="123456")
+        body = ContactSchema(name='test_name', email='testemail@ukr.net')
         result = await create_contact(body, self.session)
         self.assertIsInstance(result, Contact)
         self.assertEqual(result.name, body.name)
