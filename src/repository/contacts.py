@@ -4,7 +4,7 @@ from fastapi import Depends
 
 from src.database.db import get_db
 from src.database.models import Contact
-from src.schemas import ContactSchema
+from src.schemas import ContactSchema, UpdateSchema
 
 from validate_email import validate_email
 
@@ -56,7 +56,7 @@ async def create_contact(body: ContactSchema, db: AsyncSession = Depends(get_db)
     return contact
 
 
-async def update_contact(contact_id: int, body: ContactSchema, db: AsyncSession):
+async def update_contact(contact_id: int, body:UpdateSchema , db: AsyncSession):
     """
     The update_contact function updates a contact in the database.
     
@@ -71,7 +71,6 @@ async def update_contact(contact_id: int, body: ContactSchema, db: AsyncSession)
     contact = result.scalar_one_or_none()
     if contact:
         contact.name = body.name
-        contact.email = body.email
         contact.phone = body.phone
         contact.birthday = body.birthday
         await db.commit()

@@ -10,6 +10,12 @@ class ContactSchema(BaseModel):
     password: str = Field(min_length=6, max_length=8)
 
 
+class UpdateSchema(BaseModel):
+    name: str = Field(min_length=3, max_length=40)
+    phone: str = Field(min_length=10, max_length=13)
+    birthday: date
+
+
 class ContactResponse(BaseModel):
     id: int = 1
     name: str

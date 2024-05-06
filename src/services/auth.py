@@ -12,6 +12,7 @@ from src.database.db import get_db
 from src.repository import contacts as repository_contacts
 
 from conf.config import config
+from conf import messages
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -103,12 +104,12 @@ class Auth:
                 return email
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid scope for token",
+                detail=messages.INVALID_SCOPE_FOR_TOKEN,
             )
         except JWTError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
+                detail=messages.COULD_NOT_VALIDATE_CREDENTIALS,
             )
 
     async def get_current_contact(
@@ -128,7 +129,7 @@ class Auth:
         """
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail=messages.COULD_NOT_VALIDATE_CREDENTIALS,
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -182,7 +183,7 @@ class Auth:
         except JWTError as e:
             print(e)
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail="Invalid token for email verification")
+                            detail=messages.INVALID_TOKEN_FOR_EMAIL_VERIFICATION)
 
 
 auth_service = Auth()

@@ -28,13 +28,13 @@ from fastapi.security import (
 
 from my_limiter import limiter
 
+from conf import messages
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 get_refresh_token = HTTPBearer()
 
 
-@router.post(
-    "/signup", response_model=ContactResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/signup", response_model=ContactResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 async def signup(
     body: ContactSchema,
@@ -55,9 +55,7 @@ async def signup(
     """
     exist_user = await repository_contacts.get_contact_by_email(body.email, db)
     if exist_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Account already exists"
-        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=messages.ACCOUNT_EXIST)
     body.password = auth_service.get_password_hash(body.password)
     new_user = await repository_contacts.create_contact(body, db)
     background_tasks.add_task(
@@ -81,15 +79,15 @@ async def login(
     user = await repository_contacts.get_contact_by_email(body.username, db)
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.INVALID_EMAIL
         )
     if not user.confirmed:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Email not confirmed"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.EMAIL_NOT_CONFIRMED
         )
     if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.INVALID_PASSWORD
         )
     # Generate JWT
     access_token = await auth_service.create_access_token(data={"sub": user.email})
@@ -127,12 +125,12 @@ async def request_email(
     user = await repository_contacts.get_contact_by_email(body.email, db)
 
     if user.confirmed:
-        return {"message": "Your email is already confirmed"}
+        return {"message": messages.EMAIL_ALREADY_CONFIRMED}
     if user:
         background_tasks.add_task(
             send_email, user.email, user.name, request.base_url
         )
-    return {"message": "Check your email for confirmation."}
+    return {"message": messages.CHECK_EMAIL}
 
 
 @router.get("/confirmed_email/{token}")
@@ -151,12 +149,12 @@ async def confirmed_email(token: str, db: AsyncSession = Depends(get_db)):
     user = await repository_contacts.get_contact_by_email(email, db)
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error"
+            status_code=status.HTTP_400_BAD_REQUEST, detail=messages.VERIFICATION_ERROR
         )
     if user.confirmed:
-        return {"message": "Your email is already confirmed"}
+        return {"message": messages.EMAIL_ALREADY_CONFIRMED}
     await repository_contacts.confirmed_email(email, db)
-    return {"message": "Email confirmed"}
+    return {"message": messages.EMAIL_CONFIRMED}
 
 
 @router.get("/refresh_token", response_model=TokenSchema)
@@ -181,7 +179,7 @@ async def refresh_token(
     if contact.refresh_token != token:
         await repository_contacts.update_token(contact, None, db)
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.INVALID_REFRESH_TOKEN
         )
 
     access_token = await auth_service.create_access_token(data={"sub": email})

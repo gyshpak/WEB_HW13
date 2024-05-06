@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Contact
 from src.database.db import get_db
-from src.schemas import ContactSchema, ContactResponse  # , ContactUpdateSchema
+from src.schemas import UpdateSchema, ContactResponse
 from src.repository import contacts as repository_contacts
 from src.services.auth import auth_service
 
@@ -25,6 +25,7 @@ import cloudinary.uploader
 from my_limiter import limiter
 
 from conf.config import config
+from conf import messages
 
 router = APIRouter(prefix="/contacts", tags=["contacts"])
 
@@ -82,14 +83,14 @@ async def get_contact(
     contact = await repository_contacts.get_contact(contact_id, db)
     if contact is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=messages.CONTACT_NOT_FOUND
         )
     return contact
 
 
 @router.put("/")
 async def update_contact(
-    body: ContactSchema,
+    body: UpdateSchema,
     db: AsyncSession = Depends(get_db),
     cur_contact: Contact = Depends(auth_service.get_current_contact),
 ):
@@ -109,12 +110,12 @@ async def update_contact(
     if cur_contact is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Contact not found",
+            detail=messages.CONTACT_NOT_FOUND,
         )
     return contact
 
 
-@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/")#, status_code=status.HTTP_204_NO_CONTENT)
 async def delete_contact(
     db: AsyncSession = Depends(get_db),
     cur_contact: Contact = Depends(auth_service.get_current_contact),
