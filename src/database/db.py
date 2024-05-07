@@ -1,4 +1,5 @@
 import contextlib
+from typing import AsyncIterator
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -15,12 +16,15 @@ DB_URL = config.DB_URL
 class DatabaseSessionManager:
     def __init__(self, url: str):
         self._engine: AsyncEngine | None = create_async_engine(url)
-        self._session_maker: async_sessionmaker = async_sessionmaker(
-            autoflush=False, autocommit=False, bind=self._engine
+        self._session_maker: async_sessionmaker | None = async_sessionmaker(
+            autoflush=False,
+            autocommit=False,
+            bind=self._engine,
+            expire_on_commit=False,
         )
 
     @contextlib.asynccontextmanager
-    async def session(self):
+    async def session(self) -> AsyncIterator[AsyncSession]:
         if self._session_maker is None:
             raise Exception("Session is not initialized")
         session = self._session_maker()
