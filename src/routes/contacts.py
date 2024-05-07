@@ -22,7 +22,7 @@ from src.services.auth import auth_service
 import cloudinary
 import cloudinary.uploader
 
-from my_limiter import limiter
+# from my_limiter import limiter
 
 from conf.config import config
 from conf import messages
@@ -37,7 +37,7 @@ cloudinary.config(
 
 
 @router.get("/", response_model=List[ContactResponse])
-@limiter.limit("5/minute")
+# @limiter.limit("5/minute")
 async def get_contacts(
     request: Request,
     offset: int = Query(default=0, ge=0),
