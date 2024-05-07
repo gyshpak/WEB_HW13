@@ -8,14 +8,15 @@ from src.database.db import get_db
 from src.routes import contacts
 from src.routes import auth
 
-from my_limiter import lifespan
+# from my_limiter import lifespan
 from conf.config import config
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-app = FastAPI(lifespan=lifespan)
+# app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.include_router(auth.router, prefix="/api")
 app.include_router(contacts.router, prefix="/api")
