@@ -32,4 +32,4 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    r.close()
+    await r.close()
