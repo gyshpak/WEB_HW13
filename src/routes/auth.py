@@ -26,7 +26,7 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
 )
 
-# from my_limiter import limiter
+from my_limiter import limiter
 
 from conf import messages
 
@@ -35,7 +35,7 @@ get_refresh_token = HTTPBearer()
 
 
 @router.post("/signup", response_model=ContactResponse, status_code=status.HTTP_201_CREATED)
-# @limiter.limit("5/minute")
+@limiter.limit("5/minute")
 async def signup(
     body: ContactSchema,
     background_tasks: BackgroundTasks,
